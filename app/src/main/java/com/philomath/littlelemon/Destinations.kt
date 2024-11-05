@@ -1,0 +1,1 @@
+package com.philomath.littlelemoninterface Destinations {      val route: String}object Onboarding : Destinations {      override val route = "Onboard"}object Home : Destinations {      override val route = "Home"}object Profile : Destinations {      override val route = "Profile"}
