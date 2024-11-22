@@ -10,13 +10,36 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.serialization.kotlinx.json.json
 
 class MainActivity : ComponentActivity() {
+
+      private val client = HttpClient(Android) {
+            install(ContentNegotiation) {
+                  json(contentType = ContentType("json", "plain"))
+            }
+      }
+
+      private suspend fun getMenuItems() : List<MenuNetworkData> {
+            val response : List<MenuNetworkData> = client
+                  .get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json")
+                  .body()
+            return response ?: listOf()
+      }
+
       override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
+
             setContent {
                   MyNavigation()
 //                  LittleLemonTheme {
@@ -30,7 +53,14 @@ class MainActivity : ComponentActivity() {
 //                  }
             }
       }
+
+
+      override fun onDestroy() {
+            super.onDestroy()
+            client.close()
+      }
 }
+
 
 @Composable
 fun MyNavigation() {

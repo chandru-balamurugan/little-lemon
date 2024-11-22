@@ -1,6 +1,11 @@
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
+
 plugins {
       id("com.android.application")
       id("org.jetbrains.kotlin.android")
+      id("org.jetbrains.kotlin.plugin.serialization")
+//      id("com.google.devtools.ksp")
+      id("kotlin-kapt")
 }
 
 android {
@@ -50,7 +55,7 @@ android {
 }
 
 dependencies {
-      implementation("androidx.core:core-ktx:1.9.0")
+      implementation("androidx.core:core-ktx:1.15.0")
       implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
       implementation("androidx.activity:activity-compose:1.9.3")
       implementation(platform("androidx.compose:compose-bom:2023.03.00"))
@@ -58,6 +63,8 @@ dependencies {
       implementation("androidx.compose.ui:ui-graphics")
       implementation("androidx.compose.ui:ui-tooling-preview")
       implementation("androidx.compose.material3:material3")
+
+      /// test plugins
       testImplementation("junit:junit:4.13.2")
       androidTestImplementation("androidx.test.ext:junit:1.2.1")
       androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
@@ -65,5 +72,14 @@ dependencies {
       androidTestImplementation("androidx.compose.ui:ui-test-junit4")
       debugImplementation("androidx.compose.ui:ui-tooling")
       debugImplementation("androidx.compose.ui:ui-test-manifest")
-      implementation("androidx.navigation:navigation-compose:2.8.3")
+      implementation("androidx.navigation:navigation-compose:2.8.4")
+
+      // ktor implementation
+      implementation("io.ktor:ktor-client-android:2.1.3")
+      implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
+      implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
+
+      /// room implementation
+      implementation("androidx.room:room-runtime:2.6.1")
+      kapt ("androidx.room:room-compiler:2.6.1")
 }
