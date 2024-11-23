@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,24 +22,51 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+      val TAG: String = "MAIN_ACTIVITY"
 
       private val client = HttpClient(Android) {
             install(ContentNegotiation) {
                   json(contentType = ContentType("json", "plain"))
+//                  json(Json{ ignoreUnknownKeys = true})
             }
       }
 
-      private suspend fun getMenuItems() : List<MenuNetworkData> {
-            val response : List<MenuNetworkData> = client
+      private suspend fun getMenuItems() {
+            val response: MenuNetworkData = client
                   .get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json")
                   .body()
-            return response ?: listOf()
+
+            Log.d(TAG, "$response")
+
+//            val menuItems = response.map { it ->
+//                  MenuItem(
+//                        id = it.id,
+//                        name = it.title,  // Map title to name for the entity
+//                        description = it.description,
+//                        price = it.price,
+//                        image = it.image,
+//                        category = it.category,
+//                  )
+//            }
+//
+//            val db = AppDatabase.invoke(applicationContext)
+//            db.menuItemDao().insertMenuItems(menuItems)
       }
 
       override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                  try {
+                        getMenuItems()
+                  } catch (e: Exception) {
+                        Log.d(TAG, "$e");
+                  }
+            }
 
             setContent {
                   MyNavigation()
