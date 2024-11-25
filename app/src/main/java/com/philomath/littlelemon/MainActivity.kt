@@ -30,7 +30,8 @@ class MainActivity : ComponentActivity() {
 
       private val client = HttpClient(Android) {
             install(ContentNegotiation) {
-                  json(contentType = ContentType("json", "plain"))
+                  json()
+//                  json(contentType = ContentType("json", "plain"))
 //                  json(Json{ ignoreUnknownKeys = true})
             }
       }
