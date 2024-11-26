@@ -20,42 +20,50 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
+//      private val menuItems = MutableLiveData<List<MenuItemNetwork>>()
       val TAG: String = "MAIN_ACTIVITY"
+      private val MENU_URL =
+            "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json"
+
 
       private val client = HttpClient(Android) {
             install(ContentNegotiation) {
-                  json()
-//                  json(contentType = ContentType("json", "plain"))
-//                  json(Json{ ignoreUnknownKeys = true})
+                  json(contentType = ContentType("text", "plain"))
             }
       }
 
+
       private suspend fun getMenuItems() {
             val response: MenuNetworkData = client
-                  .get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json")
+                  .get(MENU_URL)
                   .body()
 
-            Log.d(TAG, "$response")
+            Log.d("${TAG}_RESPONSE", "${response.menuItems}")
 
-//            val menuItems = response.map { it ->
-//                  MenuItem(
-//                        id = it.id,
-//                        name = it.title,  // Map title to name for the entity
-//                        description = it.description,
-//                        price = it.price,
-//                        image = it.image,
-//                        category = it.category,
-//                  )
-//            }
-//
-//            val db = AppDatabase.invoke(applicationContext)
-//            db.menuItemDao().insertMenuItems(menuItems)
+            val menuItems = response.menuItems.map { it ->
+                  MenuItem(
+                        id = it.id,
+                        title = it.title,
+                        description = it.description,
+                        price = it.price,
+                        image = it.image,
+                        category = it.category,
+                  )
+            }
+
+            Log.d("${TAG}_PARSE", "$menuItems")
+
+            val db = AppDatabase.invoke(applicationContext)
+            db.menuItemDao().insertMenuItems(menuItems)
       }
 
       override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +73,7 @@ class MainActivity : ComponentActivity() {
                   try {
                         getMenuItems()
                   } catch (e: Exception) {
-                        Log.d(TAG, "$e");
+                        Log.d("${TAG}_ERROR", "$e");
                   }
             }
 
