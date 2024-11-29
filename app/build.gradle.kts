@@ -93,4 +93,7 @@ dependencies {
 
       // Add the Compose Compiler dependency
       implementation("androidx.compose.compiler:compiler:1.5.15")
+
+      // glide
+      implementation("com.github.bumptech.glide:compose:1.0.0-alpha.1")
 }

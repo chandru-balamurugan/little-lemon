@@ -9,8 +9,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,16 +18,13 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
-import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
-//      private val menuItems = MutableLiveData<List<MenuItemNetwork>>()
+      //      private val menuItems = MutableLiveData<List<MenuItemNetwork>>()
       val TAG: String = "MAIN_ACTIVITY"
       private val MENU_URL =
             "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json"
@@ -68,26 +63,32 @@ class MainActivity : ComponentActivity() {
 
       override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
+            val prefs = applicationContext.getSharedPreferences(
+                  application.packageName,
+                  Context.MODE_PRIVATE
+            )
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                  try {
-                        getMenuItems()
-                  } catch (e: Exception) {
-                        Log.d("${TAG}_ERROR", "$e");
+            val firstName = prefs.getString("firstName", "")
+            val secondName = prefs.getString("secondName", "")
+            val email = prefs.getString("email", "")
+            var isFirstLogin = true
+            Log.d("SHARED_PREFS", "$firstName, $secondName, $email")
+            if (!firstName.isNullOrEmpty() && !secondName.isNullOrEmpty() && !email.isNullOrEmpty()) {
+                  isFirstLogin = false
+            }
+
+            if (isFirstLogin) {
+                  lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                              getMenuItems()
+                        } catch (e: Exception) {
+                              Log.d("${TAG}_ERROR", "$e");
+                        }
                   }
             }
 
             setContent {
-                  MyNavigation()
-//                  LittleLemonTheme {
-//                        // A surface container using the 'background' color from the theme
-//                        Surface(
-//                              modifier = Modifier.fillMaxSize(),
-//                              color = MaterialTheme.colorScheme.background
-//                        ) {
-//                              Greeting("Android")
-//                        }
-//                  }
+                  MyNavigation(isFirstLogin)
             }
       }
 
@@ -100,15 +101,9 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun MyNavigation() {
-      val context = LocalContext.current
-      val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
-      val firstName = prefs.getString("firstName", "")
-      val secondName = prefs.getString("secondName", "")
-      val email = prefs.getString("email", "")
+fun MyNavigation(isFirstLogin: Boolean) {
       var startDestination = Onboarding.route
-      Log.d("SHARED_PREFS", "$firstName, $secondName, $email")
-      if (!firstName.isNullOrEmpty() && !secondName.isNullOrEmpty() && !email.isNullOrEmpty()) {
+      if (!isFirstLogin) {
             startDestination = Home.route
       }
 
@@ -126,19 +121,4 @@ fun MyNavigation() {
       }
 }
 
-//@Composable
-//fun Greeting(name: String, modifier: Modifier = Modifier) {
-//      Text(
-//            text = "Hello $name!",
-//            modifier = modifier
-//      )
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun GreetingPreview() {
-//      LittleLemonTheme {
-//            Greeting("Android")
-//      }
-//}
 
